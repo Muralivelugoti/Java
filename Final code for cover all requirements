@@ -1,0 +1,100 @@
+import static org.testng.Assert.assertEquals;
+
+import java.time.Duration;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import dev.failsafe.internal.util.Assert;
+
+public class ValidateTotalRecurringReimbursement {
+
+	public static void main(String[] args) throws InterruptedException {
+		WebDriver driver = new ChromeDriver();
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+		Actions ac = new Actions(driver);
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		driver.manage().window().maximize();
+
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+		driver.get("https://www.fitpeo.com/");
+		Thread.sleep(1000);
+		driver.findElement(By.xpath("//div[text()='Revenue Calculator']")).click();
+		js.executeScript("window.scrollBy(0,300)");
+
+		Thread.sleep(3000);
+		driver.findElement(By.xpath(
+				"//input[@class='MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1o6z5ng']"))
+				.clear();
+		Thread.sleep(3000);
+		driver.findElement(By.xpath(
+				"//input[@class='MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1o6z5ng']"))
+				.click();
+
+		driver.findElement(By.xpath(
+				"//input[@class='MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1o6z5ng']"))
+				.sendKeys(Keys.BACK_SPACE);
+		driver.findElement(By.xpath(
+				"//input[@class='MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1o6z5ng']"))
+				.sendKeys(Keys.BACK_SPACE);
+		driver.findElement(By.xpath(
+				"//input[@class='MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1o6z5ng']"))
+				.sendKeys(Keys.BACK_SPACE);
+
+		driver.findElement(By.xpath(
+				"//input[@class='MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1o6z5ng']"))
+				.sendKeys("820");
+		WebElement slider = driver.findElement(By.xpath("//input[@type='range']"));
+		String slidervalue = slider.getAttribute("Value");
+		int value = Integer.parseInt(slidervalue);
+		System.out.println(slidervalue);
+		assertEquals(820, value);
+		js.executeScript("window.scrollBy(0,400)");
+		Thread.sleep(3000);
+		List<WebElement> checkboxes = driver.findElements(By.xpath("//input[@type='checkbox']"));
+		int[] indicesToSelect = { 0, 1, 2, 7 };
+		Thread.sleep(1000);
+		for (int index : indicesToSelect) {
+			WebElement checkbox = checkboxes.get(index);
+			if (!checkbox.isSelected()) {
+				checkbox.click();
+			}
+		}
+
+		int[] selectedIndexes = { 0, 2, 7 };
+		Thread.sleep(3000);
+		double sum = 0;
+		List<WebElement> checkboxesvalues = driver.findElements(By.xpath(
+				"//span[@class='MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1s3unkt']"));
+		for (int index : selectedIndexes) {
+			if (index < checkboxesvalues.size()) {
+				WebElement values = checkboxesvalues.get(index);
+				String CPTvalue = values.getText();
+				double Fvalue = Double.parseDouble(CPTvalue);
+				sum += Fvalue;
+
+				System.out.println(CPTvalue);
+			}
+		}
+		System.out.println("Sum of CTP: " + sum);
+		double TotalRecurringReimbursementSelected = value * sum;
+		Thread.sleep(1000);
+		System.out.println(TotalRecurringReimbursementSelected);
+		WebElement TotalRecurringReimbursement = driver
+				.findElement(By.xpath("(//p[@class='MuiTypography-root MuiTypography-body1 inter css-1bl0tdj'])[4]"));
+		String finaltotal = TotalRecurringReimbursement.getText();
+		System.out.println(finaltotal);
+		String actual = "$110700";
+		assertEquals(actual, finaltotal);
+
+	}
+
+}
